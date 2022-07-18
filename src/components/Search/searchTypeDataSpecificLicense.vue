@@ -12,20 +12,15 @@
           @select="handleSelect"
           value-key="license_name"
         >
-        <i
-          class="el-icon-search el-input__icon"
-          slot="suffix"
-        >
-        </i
-      >
+          <i class="el-icon-search el-input__icon" slot="suffix"> </i>
         </el-autocomplete>
       </el-col>
     </el-row>
   </div>
 </template>
-  
+
 <script>
-import {getResultTypeDataSpecificLicense} from '../../../config/api.env'
+import { getResultTypeDataSpecificLicense } from "../../../config/api.env";
 
 export default {
   data() {
@@ -34,8 +29,8 @@ export default {
       state: "",
     };
   },
-  mounted(){
-    this.getResultDataSpecificLicenseType()
+  mounted() {
+    this.getResultDataSpecificLicenseType();
   },
   methods: {
     async querySearch(queryString, cb) {
@@ -50,10 +45,10 @@ export default {
     },
     createFilter(queryString) {
       return (restaurant) => {
+        if (restaurant.license_name === "" || restaurant.license_name === undefined)
+          return;
         return (
-          restaurant.license_name
-            .toLowerCase()
-            .indexOf(queryString.toLowerCase()) !== -1 //从头
+          restaurant.license_name.toLowerCase().indexOf(queryString.toLowerCase()) !== -1 //从头
         );
       };
     },
@@ -62,7 +57,7 @@ export default {
       this.restaurants = data;
     },
     handleSelect(item) {
-       this.$router.push({
+      this.$router.push({
         path: "/licenseInfo",
         query: { id: item.id },
       });
@@ -76,10 +71,10 @@ export default {
   },
 };
 </script>
-<style >
+<style>
 .search-box input::-webkit-input-placeholder {
-  color: #fff!important;
-  text-align: center!important;
+  color: #fff !important;
+  text-align: center !important;
 }
 .search-box {
   height: 50px;
@@ -95,9 +90,9 @@ export default {
   color: #ffffff !important;
 }
 .el-input__inner {
-    border-radius: 10px !important;
-    border: 2px solid #fff !important;
-    background-color: #003261 !important;
-    color: #ffffff !important;
+  border-radius: 10px !important;
+  border: 2px solid #fff !important;
+  background-color: #003261 !important;
+  color: #ffffff !important;
 }
 </style>
