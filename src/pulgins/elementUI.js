@@ -1,3 +1,14 @@
+/*
+elementUI.js
+
+Copyright (c) 2022 The OpenDataology Authors 
+All rights reserved.
+
+SPDX-License-Identifier: Apache-2.0
+*/
+
+
+
 import Vue from 'vue'
 import {
   Pagination,
@@ -33,7 +44,13 @@ import {
   Notification,
   Dropdown,
   DropdownMenu,
-  DropdownItem
+  DropdownItem,
+  Popover,
+  Message,
+  Dialog,
+  Tag,
+  InputNumber,
+  Upload
 } from "element-ui";
 import lang from 'element-ui/lib/locale/lang/en'
 import locale from 'element-ui/lib/locale'
@@ -75,9 +92,13 @@ export default {
       .use(Dropdown)
       .use(DropdownMenu)
       .use(DropdownItem)
-
+      .use(Popover)
+      .use(Dialog)
+      .use(Tag)
+      .use(InputNumber)
+      .use(Upload)
   }
 };
 Vue.prototype.$confirm = MessageBox.confirm;
 Vue.prototype.$notify = Notification;
-// Vue.prototype.$message = Message;
+Vue.prototype.$message = Message;

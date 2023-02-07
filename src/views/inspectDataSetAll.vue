@@ -17,7 +17,7 @@
           </el-col>
           <el-col :span="2">
             <div style="width: 100px">
-              <el-select class="license_color" v-model="value" placeholder="Dataset">
+              <el-select class="license_color" v-model="value" placeholder="AIBOM">
                 <el-option
                   v-for="item in vague"
                   :key="item.value"
@@ -34,80 +34,44 @@
               <searchDataset />
             </div>
           </el-col>
-          <el-col :span="12">
-            <template>
-              <div style="width: 100px">
-                <el-select class="license_color" v-model="value" placeholder="Menu">
-                  <el-option
-                    v-for="items in options"
-                    :key="items.values"
-                    :label="items.label"
-                    :value="items.values"
-                    @click.native="changenewClass"
-                  >
-                  </el-option>
-                </el-select>
-              </div>
-            </template>
-          </el-col>
+<!--          <el-col :span="12">-->
+<!--            <template>-->
+<!--              <div style="width: 100px">-->
+<!--                <el-select class="license_color" v-model="value" placeholder="Menu">-->
+<!--                  <el-option-->
+<!--                    v-for="items in options"-->
+<!--                    :key="items.values"-->
+<!--                    :label="items.label"-->
+<!--                    :value="items.values"-->
+<!--                    @click.native="changenewClass"-->
+<!--                  >-->
+<!--                  </el-option>-->
+<!--                </el-select>-->
+<!--              </div>-->
+<!--            </template>-->
+<!--          </el-col>-->
         </el-row>
       </template>
       <!--  Welcome  -->
       <template>
         <el-row>
           <el-col :span="24">
-            <p class="licenseWelcome-box">Welcome to Dataset Metadata Portal</p>
+            <p class="licenseWelcome-box">Welcome to inspectDataSet</p>
           </el-col>
         </el-row>
       </template>
     </div>
     <!-- Middle part-->
     <template>
+      <el-tabs v-model="activeName" @tab-click="handleClick">
+        <el-tab-pane label="Data Review" name="first"><inspect-data-set @number="getReviewDataNumber"></inspect-data-set></el-tab-pane>
+        <el-tab-pane label="Audited Dataset" name="second"><inspected-data-set @number="getResultDataNumber"></inspected-data-set></el-tab-pane>
+      </el-tabs>
       <div>
         <h5 style="text-align: center; color: #003261">Total : {{ totalNum }}</h5>
-        <el-empty
-          v-if="dataSetData.length === 0"
-          description="No Data ..."
-          v-show="false"
-        >
-        </el-empty>
-        <div v-if="dataSetData.length !== 0">
-          <!-- 总长度/列数  = 行数 -->
-          <div class="list">
-            <div v-for="o in dataSetData" :key="o.id">
-              <el-card style="height: 120px">
-                <!-- operate -->
-                <div
-                  slot="header"
-                  class="clearfix"
-                  style="height: 40px; color: #003261; font-size: 15px"
-                  @click="toDataSetInfo(o.id)"
-                >
-                  {{ o["dataset_name"] }}
-                </div>
-                <div style="color: #a8a4a4; font-size: 10px">
-                  {{ o["license_name"] }}
-                </div>
-              </el-card>
-            </div>
-          </div>
-        </div>
       </div>
+
     </template>
-    <!--  分页-->
-    <div class="Dataset-paging">
-      <div class="block">
-        <el-pagination
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          :current-page="dataSetData.pageNum"
-          :page-size="numDatasetData.pageSize"
-          layout="total, prev, pager, next, jumper"
-          :total="totalNum"
-        >
-        </el-pagination>
-      </div>
-    </div>
     <!--尾部-->
     <template>
       <div class="license-tail-box">
@@ -124,27 +88,27 @@
         </el-row>
       </div>
     </template>
+
+
   </div>
 </template>
 <script>
 import searchDataset from "../components/Search/searchDataset.vue";
-import { getDatasetDataAll } from "../../config/api.env.js";
+import inspectDataSet from "../components/Inspect/inspectDataSet"
+import InspectedDataSet from "../components/Inspect/inspectedDataSet";
 
 export default {
-  components: { searchDataset },
+  components: {InspectedDataSet, searchDataset, inspectDataSet },
   name: "Welcome",
   data() {
     return {
+      activeName: 'first',
       value: [],
       vague: [
         {
           value: "1",
           label: "License",
         },
-        {
-          value:"2",
-          label:"Review",
-        }
       ],
       options: [
         {
@@ -158,6 +122,8 @@ export default {
       ],
       dataSetData: [],
       totalNum: 0,
+      reviewTotalNum: 0,
+      resultTotalNum: 0,
       numDatasetData: {
         pageSize: 12,
         pageNum: 1,
@@ -167,9 +133,16 @@ export default {
   },
   mounted() {},
   created: function () {
-    this.getDatasetData();
+
   },
   methods: {
+    handleClick(tab, event) {
+      if (tab.index == 0){
+        this.totalNum = this.reviewTotalNum
+      }else {
+        this.totalNum = this.resultTotalNum
+      }
+    },
     changenewClass() {
       console.log(this.value);
       if (this.value === "Template") {
@@ -186,41 +159,21 @@ export default {
       this.$forceUpdate();
     },
     toHome() {
-      if(this.value == 1){
-        this.$router.push({
-          path: "/licenseAll",
-        });
-      }else if(this.value == 2){
-        this.$router.push({
-          path: "/review",
-        });
-        if(this.$route.path === '/dataSetAll' || this.$route.path === '/' ){
-          this.value = 'DataSet';
-        }
-      }
-    },
-    toDataSetInfo(id) {
       this.$router.push({
-        path: "/dataSetInfo",
-        query: { id },
+        path: "/licenseAll",
       });
     },
-    async getDatasetData() {
-      const { data, totalNum } = await getDatasetDataAll(this.numDatasetData);
-      this.dataSetData = data;
-      this.totalNum = totalNum;
+    // getDataNumber(num){
+    //   this.totalNum = num
+    // },
+    getReviewDataNumber(num){
+      this.reviewTotalNum = num
+      this.totalNum = num
     },
-    //分页监听 监听尺寸改变
-    handleSizeChange(newSize) {
-      this.numDatasetData.pageSize = newSize;
-      this.getDatasetData();
-    },
-    //监听页码改变
-    handleCurrentChange(newPage) {
-      this.numDatasetData.pageNum = newPage;
-      this.getDatasetData();
-      // console.log(newPage)
-    },
+    getResultDataNumber(num){
+      this.resultTotalNum=num
+      this.totalNum = num
+    }
   },
 };
 </script>
